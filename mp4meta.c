@@ -1,8 +1,4 @@
 #define _LARGEFILE64_SOURCE
-#ifdef __APPLE__
-#  define off64_t off_t
-#  define lseek64 lseek
-#endif
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -12,6 +8,11 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+
+#ifdef __APPLE__
+#define lseek64 lseek
+typedef off_t off64_t;
+#endif
 
 #define ALOGV printf
 
@@ -143,7 +144,7 @@ int main(int argc, char **argv) {
     if (fd < 0) {
         printf("can not open file successfully, quit!\n");
         close(fd);
-        return OK;
+        return ERR_IO;
     }
 
     off64_t offset = 0;
@@ -258,12 +259,15 @@ status_t parseChunk(int fd, off64_t *offset, int depth) {
         case FOURCC('s', 't', 's', 'd'): // Sample Description Box
         {
             uint8_t buffer[8];
-            if (chunk_data_size < (off64_t) sizeof(buffer)) {
+            if (chunk_data_size < (off64_t)
+            sizeof(buffer)) {
                 return ERR_MALFORMED;
             }
 
-            if (readAt(fd, data_offset, buffer, sizeof(buffer))
-                < (ssize_t) sizeof(buffer)) {
+            if (
+                readAt(fd, data_offset, buffer, sizeof(buffer))
+                < (ssize_t)
+            sizeof(buffer)) {
                 return ERR_IO;
             }
 
@@ -297,14 +301,17 @@ status_t parseChunk(int fd, off64_t *offset, int depth) {
 
             uint8_t buffer[8 + 20];
             // rough check
-            if (chunk_data_size < (ssize_t) sizeof(buffer)) {
+            if (chunk_data_size < (ssize_t)
+            sizeof(buffer)) {
                 // Basic AudioSampleEntry size.
                 return ERR_MALFORMED;
             }
 
             // do parsing
-            if (readAt(fd, data_offset, buffer, sizeof(buffer))
-                < (ssize_t) sizeof(buffer)) {
+            if (
+                readAt(fd, data_offset, buffer, sizeof(buffer))
+                < (ssize_t)
+            sizeof(buffer)) {
                 return ERR_IO;
             }
 
@@ -357,13 +364,16 @@ status_t parseChunk(int fd, off64_t *offset, int depth) {
             hasVideoTrack = 1;
 
             uint8_t buffer[78];
-            if (chunk_data_size < (ssize_t) sizeof(buffer)) {
+            if (chunk_data_size < (ssize_t)
+            sizeof(buffer)) {
                 // Basic VisualSampleEntry size.
                 return ERR_MALFORMED;
             }
 
-            if (readAt(fd, data_offset, buffer, sizeof(buffer))
-                < (ssize_t) sizeof(buffer)) {
+            if (
+                readAt(fd, data_offset, buffer, sizeof(buffer))
+                < (ssize_t)
+            sizeof(buffer)) {
                 return ERR_IO;
             }
 
@@ -468,8 +478,10 @@ status_t parseChunk(int fd, off64_t *offset, int depth) {
             }
 
             // do parsing
-            if (readAt(fd, data_offset, header, sizeof(header))
-                < (ssize_t) sizeof(header)) {
+            if (
+                readAt(fd, data_offset, header, sizeof(header))
+                < (ssize_t)
+            sizeof(header)) {
                 return ERR_IO;
             }
 
